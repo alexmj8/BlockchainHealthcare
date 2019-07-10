@@ -1,0 +1,25 @@
+
+// Get an authorized Clinician
+query getMyClinician{
+description: "Get clinician."
+statement:
+       SELECT org.healthcare.com.Clinician
+       WHERE (patients CONTAINS _$patient)
+ }
+
+// Get patient's profile
+query getMyPatients{
+description: "Get patient."
+statement:
+       SELECT org.healthcare.com.Patient
+       WHERE (authorizedClinicians CONTAINS _$clinician)
+ }
+
+// Get client's profile
+query getMyTrainers{
+description: "Get personal trainer."
+statement:
+       SELECT org.healthcare.com.PersonalTrainer
+       WHERE (patients CONTAINS _$patient)
+ }
+

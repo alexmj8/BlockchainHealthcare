@@ -1,0 +1,171 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * MODEL DEFINITIONS
+*/
+
+namespace org.healthcare.com
+
+// PARTICIPANTS
+participant Patient identified by patientId {
+  o String patientId regex=/^[a-f0-9]{32}$/
+  --> MedicalRecord medicalRecord optional
+  --> Clinician[] authorizedClinicians optional
+  --> Lab[] authorizedLabs optional
+}
+
+asset PatientDetails identified by assetKey {
+  o String assetKey
+  o String firstName
+  o String lastName
+  o String email regex=/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+  o Address address
+  --> Patient owner
+}
+
+participant Clinician identified by clinicianId {
+  o String clinicianId regex=/^[a-f0-9]{32}$/
+  --> Patient[] patients optional
+}
+
+asset ClinicianPublicProfile identified by assetKey {
+  o String assetKey
+  o String firstName
+  o String lastName
+  o String email regex=/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+  o String registrationNumber
+  o String specialty
+  o Address address
+  --> Clinician owner
+}
+
+participant Lab identified by labId {
+  o String labId regex=/^[a-f0-9]{32}$/
+  --> Patient[] patients optional
+}
+
+asset LabPublicProfile identified by assetKey {
+  o String assetKey
+  o String name
+  o String email regex=/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+  o Address address
+  --> Lab owner
+}
+
+participant PersonalTrainer identified by trainerId {
+  o String trainerId regex=/^[a-f0-9]{32}$/
+  --> Patient[] patients optional
+}
+
+asset TrainerPublicProfile identified by assetKey {
+  o String assetKey
+  o String firstName
+  o String lastName
+  o String email regex=/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+  o Address address
+  --> PersonalTrainer owner
+}
+
+participant Wearable identified by wearableId {
+  o String wearableId regex=/^[a-f0-9]{32}$/
+  o String name
+}
+
+// ASSETS
+asset MedicalRecord identified by recordId {
+  o String recordId
+  o String medicalHistory optional
+  o String allergies optional
+  o String currentMedication optional
+  --> Clinician lastConsultationWith optional
+  o String lastConsultationDate optional
+  o String activeHoursInAWeek optional
+  o Boolean smoking optional
+  o Integer version optional
+  --> Patient owner optional
+  --> Clinician author optional
+}
+
+asset WearableData identified by assetKey {
+  o String assetKey
+  o Integer pedometer
+  o Integer calories
+  o Integer heartbeat
+  --> Patient owner
+  --> Wearable device
+}
+
+// TRANSACTIONS
+transaction GrantAccessToClinician {
+  --> Clinician authorizedClinician
+}
+
+transaction RevokeAccessFromClinician{
+  --> Clinician unauthorizedClinician
+}
+
+transaction GrantAccessToLab {
+  --> Lab authorizedLab
+}
+
+transaction RevokeAccessFromLab{
+  --> Lab unauthorizedLab
+}
+
+transaction GrantAccessToTrainer {
+  --> PersonalTrainer authorizedTrainer
+}
+
+transaction RevokeAccessFromTrainer{
+  --> PersonalTrainer unauthorizedTrainer
+}
+
+transaction InitialMedicalRecord{
+  o String medicalHistory
+  o String allergies
+  o String currentMedication
+  --> Clinician lastConsultationWith
+  o String lastConsultationDate
+  o String activeHoursInAWeek
+  o Boolean smoking
+  --> Patient owner
+}
+
+transaction UpdateMedicalRecord{
+  --> MedicalRecord medicalRecord
+  o String medicalHistory
+  o String allergies
+  o String currentMedication
+  o String lastConsultationDate
+  o String activeHoursInAWeek
+  o Boolean smoking
+}
+
+transaction SendWearableData {
+  o Integer pedometer
+  o Integer calories
+  o Integer heartbeat
+  --> Patient owner
+  --> Wearable device
+}
+
+// CONCEPTS
+concept Address {
+  o String address
+  o String city
+  o String country
+  o String zip
+}
+
